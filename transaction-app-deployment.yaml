@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: transaction-app
+  template:
+    metadata:
+      labels:
+        app: transaction-app
+    spec:
+      containers:
+        - name: transaction-app
+          image: dhiraj2691/transactions-management
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/transactions_db
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+          readinessProbe:
+           httpGet:
+             path: /actuator/health
+             port: 8080
+           initialDelaySeconds: 10
+           periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-app
+spec:
+  selector:
+    app: transaction-app
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
