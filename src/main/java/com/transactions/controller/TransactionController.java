@@ -26,6 +26,11 @@ public class TransactionController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @GetMapping("/get-all-transaction")
+    public ResponseEntity<List<Transaction>> getTransactionsByCategory() {
+        return ResponseEntity.ok(transactionService.getAllTransaction());
+    }
+
     @GetMapping("/category/{category}")
     public ResponseEntity<List<Transaction>> getTransactionsByCategory(@PathVariable String category) {
         return ResponseEntity.ok(transactionService.getTransactionsByCategory(category));
@@ -50,4 +55,11 @@ public class TransactionController {
     public ResponseEntity<Double> getLowestSpend(@PathVariable String category, @PathVariable int year) {
         return ResponseEntity.ok(transactionService.getLowestSpend(category, year));
     }
+
+    @DeleteMapping("/delete-transaction/{id}")
+    public ResponseEntity<Object> deleteTransaction(@PathVariable Long id) {
+        transactionService.deleteTransaction(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

@@ -4,9 +4,11 @@ import com.transactions.exception.ResourceNotFoundException;
 import com.transactions.model.Transaction;
 import com.transactions.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,7 +20,7 @@ public class TransactionService {
     public TransactionService(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
     }
-
+    @Transactional
     public void createTransaction(Transaction transaction) {
         transactionRepository.save(transaction);
     }
@@ -31,6 +33,18 @@ public class TransactionService {
              throw new ResourceNotFoundException(
                      "No transactions found for category: " + category);
          }
+
+        return transactionList;
+    }
+
+    public List<Transaction> getAllTransaction() {
+
+        List<Transaction> transactionList=transactionRepository.findAll();
+
+        if(transactionList.isEmpty()){
+            throw new ResourceNotFoundException(
+                    "No transactions found" );
+        }
 
         return transactionList;
     }
@@ -66,5 +80,16 @@ public class TransactionService {
                     "No transactions found for category: " + category+" and year: "+year);
         }
         return lowest;
+    }
+
+    @Transactional
+    public void deleteTransaction(Long id) {
+        Optional<Transaction> transaction=transactionRepository.findById(id);
+        if(transaction.isEmpty()){
+            throw new ResourceNotFoundException(
+                    "No transactions found for Id: " + id);
+        }
+        transactionRepository.deleteById(id);
+
     }
 }
